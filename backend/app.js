@@ -18,6 +18,11 @@ import salesRoutes from "./src/routes/sales.js";
 // Creo una constante que es igual a la libreria que importé
 const app = express();
 
+//Que acepte datos en json
+app.use(express.json());
+// Para que postman guarde el token en una cookie
+app.use(cookieParser());
+
 // Que acepte cookies
 app.use(cookieParser());
 
@@ -27,7 +32,7 @@ app.use("/api/customers", customersRoutes);
 app.use("/api/employee", employeeRoutes);
 app.use("/api/branches", branchesRoutes);
 app.use("/api/reviews", reviewsRoutes);
-b;
+
 
 app.use("/api/registerEmployees", registerEmployeesRoutes);
 app.use("/api/login", loginRoutes);

@@ -33,8 +33,8 @@ loginController.login = async (req, res) => {
       email === config.emailAdmin.email &&
       password === config.emailAdmin.password
     ) {
-      userType = "Admin";
-      userFound = { _id: "Admin" };
+      userType = "admin";
+      userFound = { _id: "admin" };
     } else {
       // 2. Empleado
       userFound = await EmployeesModel.findOne({ email });
@@ -53,7 +53,7 @@ loginController.login = async (req, res) => {
     }
 
     //Primero, determino si el usuario está bloqueado o no
-    if (userType !== "Admin") {
+    if (userType !== "admin") {
       if (userFound.lockTime > Date.now()) {
         const minutosRestantes = Math.ceil(
           userFound.lockTime - Date.now() / 60000
@@ -65,7 +65,7 @@ loginController.login = async (req, res) => {
     }
 
     // Si no es administrador, validamos la contraseña
-    if (userType !== "Admin") {
+    if (userType !== "admin") {
       const isMatch = await bcryptjs.compare(password, userFound.password);
       if (!isMatch) {
         //Si la contraseña es incorrecta
@@ -88,21 +88,19 @@ loginController.login = async (req, res) => {
       await userFound.save();
     }
 
-    // Generar token
-    jsonwebtoken.sign(
-      //1- Que voy a guardar
-      { id: userFound._id, userType },
-      //2- Clave secreta
-      config.JWT.secret,
-      //3- Cuando expira
-      { expiresIn: config.JWT.expiresIn }
-    );
+    
+    // Generar token y guardarlo en una variable
+     const token = jsonwebtoken.sign(
+       { id: userFound._id, userType },
+       config.JWT.secret,
+       { expiresIn: config.JWT.expiresIn }
+     );
 
-    res.cookie("authToken", token, {
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/",
-      sameSite: "lax",
-    });
+      res.cookie("authToken", token, {
+        maxAge: 24 * 60 * 60 * 1000,
+        path: "/",
+        sameSite: "lax",
+       });
     res.json({ message: "login successful" });
   } catch (error) {
     console.log(error);
